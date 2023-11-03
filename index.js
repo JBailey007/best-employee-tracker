@@ -103,6 +103,14 @@ async function dbConnection(select) {
         break;
       }
 
+      receivedRowsFromDb = await db.query(
+        `INSERT INTO role (title, salary, department_id) VALUES ('${roleName}', '${roleSalary}', '${department_id}');`
+      );
+
+      break;
+
+      case "Add an Employee"
+
     }
   } catch (err) {
     console.log(err);
