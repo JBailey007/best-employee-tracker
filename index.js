@@ -108,9 +108,92 @@ async function dbConnection(select) {
       );
 
       break;
+//Adding an employee, inquirer and db queries
+      case "Add an Employee":
+        receivedOutputFromInquirer = await inquirer.prompt([
+          {
+            name: "first_name",
+            message: "Enter Employees First Name:",
+          },
+          {
+            name: "last_name",
+            message: "Enter Employees Last Name:",
+          },
+          {
+            name: "role",
+            message: "Enter Employees Role:",
+          },
+          {
+            name: "manager",
+            message: "Enter Employees Manager:",
+          },
+        ]);
 
-      case "Add an Employee"
+        const allRoles = await db.query("select * from role;");
 
+        const allManagers = await db.query("select * from employee where manager_id is null;"
+        );
+
+        const { first_name, last_name, role, manager } = receivedOutputFromInquirer;
+
+        const role_data = allRoles[0].filter((r) => {
+          return r.title === role;
+        });
+
+        const manager_data = allManagers[0].filter((m) => {
+          return `${m.first_name} ${m.last_name}` === manager;
+        });
+
+        receivedRowsFromDb = await db.query(
+          `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${first_name}', '${last_name}', '${role_data[0].id}', '${manager_data[0].id})`
+        );
+
+        break;
+//updating employee roles
+        case "Update Employee Role":
+          currentEmployees = await db.query(`
+          SELECT id, first_name, last_name FROM employee;`);
+
+          currentRoles = await db.query (`
+          SELECT id, title FROM role;`);
+
+          const employeeList = currentEmployees[0].map((employee) => {
+            return {
+              name: `${employee["first_name"]} ${employee.last_name}`,
+              value: employee.id, 
+            };
+          });
+
+          const roleList = currentRoles[0].map((role) => {
+            return {
+              name: role.title,
+              value: role.id,
+            };
+          });
+
+          receivedOutputFromInquirer = await inquirer.prompt([
+            {
+              type: "list", 
+              name: "employeeId", 
+              message: "Choose an Employee to Update:",
+              choices: employeeList,
+            },
+            {
+              type: "list", 
+              name: "NewRole", 
+              message: "Please choose Employees new Role:",
+              choices: roleList,
+            },
+          ]);
+
+          console.log(receivedOutputFromInquirer);
+
+          receivedRowsFromDb = await db.query(`
+          UPDATE employee
+          SET role_id = ${receivedOutputFromInquirer.newRole}
+          WHERE employee.id = ${receivedOutputFromInquirer.employeeId};`);
+
+          break;
     }
   } catch (err) {
     console.log(err);
