@@ -1,5 +1,6 @@
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 const inquirer = require("inquirer");
+
 require("dotenv").config();
 
 //dotenv variables
@@ -204,7 +205,7 @@ function userPrompt() {
   inquirer.prompt([
     {
       type: "list",
-      name: "selection",
+      name: "select",
       message: "What would you like to do?",
       choices: [
         "View All Departments",
