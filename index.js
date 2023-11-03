@@ -199,3 +199,33 @@ async function dbConnection(select) {
     console.log(err);
   }
 }
+
+function userPrompt() {
+  inquirer.prompt([
+    {
+      type: "list",
+      name: "selection",
+      message: "What would you like to do?",
+      choices: [
+        "View All Departments",
+        "View All Roles", 
+        "View All Employees",
+        "Add a Department",
+        "Add a Role",
+        "Add an Employee",
+        "Update an Employee Role", 
+        "Quit",
+      ], 
+    },
+  ]).then(async (res) => {
+    await dbConnection(res.select);
+    res.select === "Quit" ? process.exit() : userPrompt();
+  }).catch((err) => {
+    if (error.isTtyError) {
+    } else {
+      err;
+    }
+  });
+}
+
+userPrompt();
